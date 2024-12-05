@@ -1,93 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+  <head>
+    <title>Document</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        body {
-            background-color: #f4f7fc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-        }
-        .container {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-        input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        img {
-            margin-top: 20px;
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 8px;
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Manrope:wght@200..800&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      body {
+        background-color: hsl(0, 0%, 100%);
+        color: hsl(0, 0%, 0%);
+        font-family: "Nunito Sans", sans-serif;
+      }
+      body.dark-mode {
+        background-color: hsl(207, 26%, 17%);
+        color: hsl(0, 0%, 100%);
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        padding: 2rem;
+      }
+      .main {
+        display: flex;
+        justify-content: space-between;
+        padding: 4rem;
+        gap: 1rem;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        border: 1px solid beige;
+      }
+      .card img {
+        height: 200px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+      }
+      .card {
+        background-color: hsl(0, 0%, 100%);
+        color: hsl(0, 0%, 0%);
+        border: 1px solid hsl(0, 0%, 85%);
+      }
+      .card.dark-mode {
+        background-color: hsl(209, 23%, 22%);
+        color: hsl(0, 0%, 100%);
+        border: 1px solid hsl(209, 23%, 32%);
+      }
+      button {
+        background-color: hsl(0, 0%, 100%);
+        color: hsl(0, 0%, 0%);
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+      }
+      input {
+        padding: 0.5rem;
+        border: 1px solid hsl(0, 0%, 85%);
+      }
+      select {
+        padding: 0.5rem;
+        border: 1px solid hsl(0, 0%, 85%);
+      }
+      div.main > * {
+        flex: 1;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <img src="https://api.apgy.in/qr/?data=none&size=200" alt="QR Code" id="qrcode">
-        <h1>QR Code Generator</h1>
-        <input type="text" id="data" placeholder="Enter your text or URL">
-        <button onclick="generate()">Generate</button>
-        
-    </div>
-    <script>
-        const input = document.getElementById('data');
-        const image = document.getElementById('qrcode');
+  </head>
+  <body>
+    <header>
+      <h1>Where in the world?</h1>
+      <button id="darkModeToggle">Dark Mode</button>
+    </header>
+    <main>
+      <div class="main">
+        <input id="search" type="text" placeholder="Search for a country..." />
+        <select id="sortPopulation">
+          <option value="">Sort by Population</option>
+          <option value="lowest">Lowest</option>
+          <option value="highest">Highest</option>
+        </select>
+        <select id="filter">
+          <option value="">Select a Region</option>
+          <option value="africa">Africa</option>
+          <option value="americas">Americas</option>
+          <option value="asia">Asia</option>
+          <option value="europe">Europe</option>
+          <option value="oceania">Oceania</option>
+        </select>
+      </div>
+    </main>
+    <div class="cards"></div>
 
-        function generate() {
-            if (input.value.trim() !== "") {
-                image.src = `https://api.apgy.in/qr/?data=${input.value}&size=200`;
-            } else {
-                alert("Please enter some text or URL!");
+    <script>
+      const cards = document.querySelector(".cards");
+      const searchInput = document.getElementById("search");
+      const sortPopulation = document.getElementById("sortPopulation");
+      const filterSelect = document.getElementById("filter");
+      const darkModeToggle = document.getElementById("darkModeToggle");
+
+      let countriesData = [];
+      let currentPopulationFilter = ""; // Persist population filter state
+      let currentRegion = ""; // Persist region state
+
+      // Fetch countries by region
+      function fetchCountriesByRegion(region) {
+        const api = `https://restcountries.com/v3.1/region/${region}`;
+        fetch(api)
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error("Failed to fetch data");
             }
+            return res.json();
+          })
+          .then((data) => {
+            countriesData = data;
+            currentRegion = region; // Store the region
+            updateAndRender(); // Apply filters and render
+          })
+          .catch((error) => {
+            console.error(error);
+            cards.innerHTML =
+              "<p>Failed to load countries. Try again later.</p>";
+          });
+      }
+
+      // Apply filters and render countries
+      function updateAndRender() {
+        let filteredData = [...countriesData];
+        
+        // Apply population filter
+        if (currentPopulationFilter) {
+          filteredData = sortCountriesByPopulation(
+            currentPopulationFilter,
+            filteredData
+          );
         }
+
+        // Apply search filter
+        const searchQuery = searchInput.value.toLowerCase();
+        if (searchQuery) {
+          filteredData = filteredData.filter((country) =>
+            country.name.common.toLowerCase().includes(searchQuery)
+          );
+        }
+
+        // Render the filtered data
+        renderCards(filteredData);
+      }
+
+      // Sort countries by population
+      function sortCountriesByPopulation(order, data) {
+        return [...data].sort((a, b) =>
+          order === "lowest" ? a.population - b.population : b.population - a.population
+        );
+      }
+
+      // Render country cards
+      function renderCards(data) {
+        cards.innerHTML = "";
+        data.forEach((country) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          if (document.body.classList.contains("dark-mode")) {
+            card.classList.add("dark-mode");
+          }
+          card.innerHTML = `
+            <img src="${country.flags.svg}" alt="Flag of ${
+            country.name.common
+          }" />
+            <h3>${country.name.common}</h3>
+            <h5>Population: ${country.population.toLocaleString()}</h5>
+            <h5>Region: ${country.region}</h5>
+            <h5>Capital: ${country.capital ? country.capital[0] : "N/A"}</h5>
+            <h5>Timezone: ${
+              country.timezones ? country.timezones[0] : "N/A"
+            }</h5>
+          `;
+          cards.appendChild(card);
+        });
+      }
+
+      // Event: Region selection
+      filterSelect.addEventListener("change", () => {
+        const region = filterSelect.value;
+        if (region) {
+          fetchCountriesByRegion(region);
+        } else {
+          cards.innerHTML = "<p>Select a region to display countries.</p>";
+        }
+      });
+
+      // Event: Population filter change
+      sortPopulation.addEventListener("change", () => {
+        currentPopulationFilter = sortPopulation.value; // Save filter state
+        updateAndRender(); // Update and re-render with the new filter
+      });
+
+      // Event: Search input
+      searchInput.addEventListener("input", () => {
+        updateAndRender(); // Update and re-render with the search filter
+      });
+
+      // Event: Dark mode toggle
+      darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        const cards = document.querySelectorAll(".card");
+        cards.forEach((card) => {
+          card.classList.toggle("dark-mode");
+        });
+      });
+
+      // Initial state: Ask user to select a region
+      cards.innerHTML = "<p>Select a region to display countries.</p>";
     </script>
-</body>
+  </body>
 </html>
